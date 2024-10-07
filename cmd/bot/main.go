@@ -1,6 +1,7 @@
 package main
 
 import (
+	"go-bot/internal/app/commands"
 	"go-bot/internal/service/product"
 	"log"
 	"os"
@@ -34,7 +35,7 @@ func main() {
 
 	productService := product.NewService()
 
-	commander := NewCommander(bot, productService)
+	commander := commands.NewCommander(bot, productService)
 
 	for update := range updates {
 		switch update.Message.Command() {
@@ -48,40 +49,4 @@ func main() {
 			commander.DefaultBehavior(update.Message)
 		}
 	}
-}
-
-type Commander struct {
-	bot            *tgbotapi.BotAPI
-	productService *product.Service
-}
-
-func NewCommander(bot *tgbotapi.BotAPI, productService *product.Service) *Commander {
-	return &Commander{
-		bot:            bot,
-		productService: productService,
-	}
-}
-
-func (c *Commander) List(inpuMessage *tgbotapi.Message) {
-	var productList = "Here is the list of prodcts\n\n"
-
-	for _, v := range c.productService.List() {
-		productList += v.Title + "\n"
-	}
-
-	msg := tgbotapi.NewMessage(inpuMessage.Chat.ID, productList)
-
-	c.bot.Send(msg)
-}
-
-func (c *Commander) Help(inpuMessage *tgbotapi.Message) {
-	msg := tgbotapi.NewMessage(inpuMessage.Chat.ID, "thats a very helpful bot")
-
-	c.bot.Send(msg)
-}
-
-func (c *Commander) DefaultBehavior(inpuMessage *tgbotapi.Message) {
-	msg := tgbotapi.NewMessage(inpuMessage.Chat.ID, inpuMessage.Text+" is my answer")
-
-	c.bot.Send(msg)
 }
