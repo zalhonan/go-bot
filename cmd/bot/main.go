@@ -45,6 +45,9 @@ func main() {
 		case "list":
 			commander.List(update.Message)
 
+		case "get":
+			commander.Get(update.Message)
+
 		default:
 			commander.DefaultBehavior(update.Message)
 		}

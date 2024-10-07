@@ -17,3 +17,19 @@ func NewCommander(bot *tgbotapi.BotAPI, productService *product.Service) *Comman
 		productService: productService,
 	}
 }
+
+func (c *Commander) RunCommand(message *tgbotapi.Message) {
+	switch message.Command() {
+	case "help":
+		c.Help(message)
+
+	case "list":
+		c.List(message)
+
+	case "get":
+		c.Get(message)
+
+	default:
+		c.DefaultBehavior(message)
+	}
+}
