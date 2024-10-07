@@ -34,40 +34,54 @@ func main() {
 
 	productService := product.NewService()
 
+	commander := NewCommander(bot, productService)
+
 	for update := range updates {
 		switch update.Message.Command() {
 		case "help":
-			commandHelp(bot, update.Message)
+			commander.Help(update.Message)
 
 		case "list":
-			commandList(bot, update.Message, productService)
+			commander.List(update.Message)
 
 		default:
-			defaultBehavior(bot, update.Message)
+			commander.DefaultBehavior(update.Message)
 		}
 	}
 }
 
-func commandList(bot *tgbotapi.BotAPI, inpuMessage *tgbotapi.Message, productService *product.Service) {
+type Commander struct {
+	bot            *tgbotapi.BotAPI
+	productService *product.Service
+}
+
+func NewCommander(bot *tgbotapi.BotAPI, productService *product.Service) *Commander {
+	return &Commander{
+		bot:            bot,
+		productService: productService,
+	}
+}
+
+func (c *Commander) List(inpuMessage *tgbotapi.Message) {
 	var productList = "Here is the list of prodcts\n\n"
 
-	for _, v := range productService.List() {
+	for _, v := range c.productService.List() {
 		productList += v.Title + "\n"
 	}
 
 	msg := tgbotapi.NewMessage(inpuMessage.Chat.ID, productList)
 
-	bot.Send(msg)
+	c.bot.Send(msg)
 }
 
-func commandHelp(bot *tgbotapi.BotAPI, inpuMessage *tgbotapi.Message) {
+func (c *Commander) Help(inpuMessage *tgbotapi.Message) {
 	msg := tgbotapi.NewMessage(inpuMessage.Chat.ID, "thats a very helpful bot")
 
-	bot.Send(msg)
+	c.bot.Send(msg)
 }
 
-func defaultBehavior(bot *tgbotapi.BotAPI, inpuMessage *tgbotapi.Message) {
+func (c *Commander) DefaultBehavior(inpuMessage *tgbotapi.Message) {
 	msg := tgbotapi.NewMessage(inpuMessage.Chat.ID, inpuMessage.Text+" is my answer")
 
-	bot.Send(msg)
+	c.bot.Send(msg)
 }
