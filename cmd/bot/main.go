@@ -32,13 +32,33 @@ func main() {
 	updates := bot.GetUpdatesChan(u)
 
 	for update := range updates {
-		if update.Message != nil { // If we got a message
-			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+		switch update.Message.Command() {
+		case "help":
+			commandHelp(bot, update.Message)
 
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text+" is my answer")
-			msg.ReplyToMessageID = update.Message.MessageID
+		case "list":
+			commandList(bot, update.Message)
 
-			bot.Send(msg)
+		default:
+			defaultBehavior(bot, update.Message)
 		}
 	}
+}
+
+func commandList(bot *tgbotapi.BotAPI, inpuMessage *tgbotapi.Message) {
+	msg := tgbotapi.NewMessage(inpuMessage.Chat.ID, "thats a very helpful bot")
+
+	bot.Send(msg)
+}
+
+func commandHelp(bot *tgbotapi.BotAPI, inpuMessage *tgbotapi.Message) {
+	msg := tgbotapi.NewMessage(inpuMessage.Chat.ID, "it has a list of useful things")
+
+	bot.Send(msg)
+}
+
+func defaultBehavior(bot *tgbotapi.BotAPI, inpuMessage *tgbotapi.Message) {
+	msg := tgbotapi.NewMessage(inpuMessage.Chat.ID, inpuMessage.Text+" is my answer")
+
+	bot.Send(msg)
 }
